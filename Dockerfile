@@ -7,20 +7,28 @@ ENV HOME=/home/desktop
 ENV DISPLAY=:1
 ENV VNC_GEOMETRY=1366x768
 ENV VNC_DEPTH=24
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xfce4 xfce4-goodies \
+    gnome-session gnome-session-flashback gnome-flashback \
+    gnome-terminal nautilus gnome-settings-daemon \
     tigervnc-standalone-server \
     novnc websockify \
-    dbus-x11 x11-xserver-utils x11-apps xterm \
+    dbus-x11 dbus-user-session \
+    x11-xserver-utils x11-apps xterm xauth \
     sudo curl wget ca-certificates gnupg \
-    fonts-dejavu-core tzdata \
+    fonts-dejavu-core fonts-liberation locales tzdata \
+    adwaita-icon-theme hicolor-icon-theme \
+    && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 # Google Chrome
 RUN wget -qO /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
     && apt-get update \
-    && apt-get install -y /tmp/chrome.deb || apt-get -f install -y \
+    && apt-get install -y /tmp/chrome.deb \
     && rm -f /tmp/chrome.deb \
     && rm -rf /var/lib/apt/lists/*
 
@@ -37,7 +45,10 @@ RUN cat > /home/desktop/.vnc/xstartup <<'EOF'
 #!/bin/sh
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
-exec startxfce4
+export XDG_CURRENT_DESKTOP=GNOME
+export XDG_SESSION_TYPE=x11
+export GNOME_SHELL_SESSION_MODE=classic
+exec dbus-run-session gnome-session --session=gnome-flashback-metacity
 EOF
 RUN chmod +x /home/desktop/.vnc/xstartup
 
@@ -46,6 +57,7 @@ RUN cat > /home/desktop/.config/autostart/chrome.desktop <<'EOF'
 Type=Application
 Name=Google Chrome
 Exec=google-chrome-stable --no-sandbox --disable-dev-shm-usage --start-maximized
+Terminal=false
 X-GNOME-Autostart-enabled=true
 EOF
 
