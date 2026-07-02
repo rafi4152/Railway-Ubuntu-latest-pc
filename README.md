@@ -1,4 +1,7 @@
 # 🚀 Ubuntu Desktop for Railway
+❌❌❌Problem Ache❌❌❌
+
+
 
 A complete Ubuntu Desktop environment for Railway with XFCE, TigerVNC, noVNC, and Google Chrome.
 
